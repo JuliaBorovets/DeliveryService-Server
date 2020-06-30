@@ -16,3 +16,6 @@ notifications:
       - juliaborovets2001@gmail.com
     on_success: always
     on_failure: always
+
+before_install:
+  - chmod +x mvnw
