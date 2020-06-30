@@ -1,7 +1,10 @@
 language: java
 jdk: openjdk8
 
-dist: trusty
+dist: precise
+
+before_install:
+  - chmod +x mvnw
 
 cache:
   directories:
@@ -16,6 +19,3 @@ notifications:
       - juliaborovets2001@gmail.com
     on_success: always
     on_failure: always
-
-before_install:
-  - chmod +x mvnw
