@@ -6,11 +6,15 @@ dist: trusty
 before_install:
   - chmod +x mvnw
 
-services: mysql
-
 cache:
   directories:
     - $HOME/.m2
+
+services: mysql
+
+before_script:
+  - mysql -e 'DROP DATABASE IF EXISTS db_spring_rest'
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS db_spring_rest;'
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
