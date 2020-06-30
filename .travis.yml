@@ -13,7 +13,7 @@ cache:
 services: mysql
 
 before_script:
-  - mysql -e 'DROP DATABASE IF EXISTS db_spring_rest'
+  - mysql -e 'DROP DATABASE IF EXISTS db_spring_rest;'
   - mysql -e 'CREATE DATABASE IF NOT EXISTS db_spring_rest;'
 
 after_success:

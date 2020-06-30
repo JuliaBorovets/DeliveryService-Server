@@ -1,13 +1,13 @@
-package ua.training.domain;
+package ua.training.domain.user;
 
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import ua.training.domain.order.Order;
+import ua.training.domain.order.Receipt;
 
 import javax.persistence.*;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -39,17 +39,17 @@ public class User implements UserDetails {
     @Enumerated(value = EnumType.STRING)
     private Role role = Role.ROLE_USER;
 
-//    @OneToMany(mappedBy = "owner")
-//    private List<Order> orders = new ArrayList<>();
-//
-//    @OneToMany(mappedBy = "user")
-//    private List<Receipt> receipts = new ArrayList<>();
-//
-//    @ManyToMany(cascade = CascadeType.REFRESH)
-//    @JoinTable(name = "user_card",
-//            joinColumns = @JoinColumn(name = "user_id"),
-//            inverseJoinColumns = @JoinColumn(name = "card_id"))
-//    private Set<BankCard> cards = new HashSet<>();
+    @OneToMany(mappedBy = "owner")
+    private List<Order> orders = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<Receipt> receipts = new ArrayList<>();
+
+    @ManyToMany(cascade = CascadeType.REFRESH)
+    @JoinTable(name = "user_card",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "card_id"))
+    private Set<BankCard> cards = new HashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

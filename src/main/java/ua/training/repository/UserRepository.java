@@ -1,7 +1,7 @@
 package ua.training.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import ua.training.domain.User;
+import ua.training.domain.user.User;
 
 import java.util.List;
 import java.util.Optional;

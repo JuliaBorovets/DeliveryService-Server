@@ -1,8 +1,8 @@
 package ua.training.service;
 
 import ua.training.api.dto.UserDto;
-import ua.training.domain.Role;
-import ua.training.domain.User;
+import ua.training.domain.user.Role;
+import ua.training.domain.user.User;
 import ua.training.exception.RegException;
 
 import java.util.List;

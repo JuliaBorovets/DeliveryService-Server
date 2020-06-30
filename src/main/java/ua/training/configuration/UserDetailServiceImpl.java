@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import ua.training.domain.User;
+import ua.training.domain.user.User;
 import ua.training.repository.UserRepository;
 
 import java.util.HashSet;

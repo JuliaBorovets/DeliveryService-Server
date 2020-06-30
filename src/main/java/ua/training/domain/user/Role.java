@@ -1,4 +1,4 @@
-package ua.training.domain;
+package ua.training.domain.user;
 
 import org.springframework.security.core.GrantedAuthority;
 

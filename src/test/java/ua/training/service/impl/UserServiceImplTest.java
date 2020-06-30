@@ -8,8 +8,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import ua.training.api.dto.UserDto;
 import ua.training.api.mapper.UserMapper;
-import ua.training.domain.Role;
-import ua.training.domain.User;
+import ua.training.domain.user.Role;
+import ua.training.domain.user.User;
 import ua.training.exception.RegException;
 import ua.training.repository.UserRepository;
 

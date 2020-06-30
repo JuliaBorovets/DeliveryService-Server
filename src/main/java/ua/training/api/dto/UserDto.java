@@ -4,7 +4,7 @@ import lombok.*;
 import org.hibernate.validator.constraints.Length;
 import ua.training.configuration.RegexConstants;
 import ua.training.configuration.ValidPassword;
-import ua.training.domain.Role;
+import ua.training.domain.user.Role;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
