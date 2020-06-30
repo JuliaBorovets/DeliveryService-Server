@@ -2,14 +2,10 @@ package ua.training.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
-import ua.training.api.dto.UserDto;
-import ua.training.service.UserService;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.*;
+import ua.training.api.dto.StatisticsDto;
+import ua.training.exception.OrderNotFoundException;
+import ua.training.service.AdminService;
 
 @Slf4j
 @RestController
@@ -18,17 +14,38 @@ public class AdminController {
 
     public static final String BASE_URL = "/api/admin";
 
-    private final UserService userService;
+    private final AdminService adminService;
 
-    public AdminController(UserService userService) {
-        this.userService = userService;
+    public AdminController(AdminService adminService) {
+        this.adminService = adminService;
     }
 
-    @GetMapping("/all")
+    @PatchMapping("/to_ship/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public List<UserDto> getAllUsers() {
+    public void shipOneOrder(@PathVariable Long id) throws OrderNotFoundException {
 
-        return userService.findAllUsers();
+        adminService.shipOrder(id);
+    }
+
+    @PatchMapping("/to_deliver/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deliverOneOrder(@PathVariable Long id) throws OrderNotFoundException {
+
+        adminService.deliverOrder(id);
+    }
+
+    @PatchMapping("/to_receive/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void receiveOneOrder(@PathVariable Long id) throws OrderNotFoundException {
+
+        adminService.receiveOrder(id);
+    }
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public StatisticsDto createGeneralStatistics(){
+
+        return adminService.createStatisticsDto();
     }
 }
 
