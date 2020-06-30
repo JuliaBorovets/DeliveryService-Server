@@ -23,7 +23,7 @@ public interface OrderService {
 
     OrderDto getOrderDtoById(Long id) throws OrderNotFoundException;
 
-    OrderDto getOrderDtoByIdAndUserId(Long id, Long userId) throws OrderNotFoundException;
+    OrderDto getOrderDtoByIdAndUserId(Long id, User userId) throws OrderNotFoundException;
 
     List<OrderDto> findAllPaidOrdersDTO();
 

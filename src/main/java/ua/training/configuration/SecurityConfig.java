@@ -44,7 +44,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .logout().permitAll()
                 .logoutRequestMatcher(new AntPathRequestMatcher("/api/user/logout", "POST"))
                 .and()
-                .formLogin().loginPage("/api/user/login").and()
+                //.formLogin().loginPage("/api/user/login").and()
+                .formLogin().disable()
                 .httpBasic().and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .csrf().disable();

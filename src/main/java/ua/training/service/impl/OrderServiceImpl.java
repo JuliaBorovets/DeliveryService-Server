@@ -1,80 +1,182 @@
 package ua.training.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ua.training.api.dto.OrderDto;
+import ua.training.api.mapper.OrderMapper;
 import ua.training.domain.order.Order;
+import ua.training.domain.order.Status;
 import ua.training.domain.user.User;
-import ua.training.exception.OrderCreateException;
-import ua.training.exception.OrderNotFoundException;
-import ua.training.exception.UserNotFoundException;
+import ua.training.exception.*;
+import ua.training.repository.OrderRepository;
+import ua.training.repository.UserRepository;
+import ua.training.service.DestinationService;
 import ua.training.service.OrderService;
+import ua.training.service.OrderTypeService;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
+@PropertySource("classpath:constants.properties")
 public class OrderServiceImpl implements OrderService {
-    @Override
-    public List<OrderDto> findAllUserOrders(Long userId) {
-        return null;
+
+    private final OrderRepository orderRepository;
+    private final UserRepository userRepository;
+    private final OrderMapper orderMapper;
+    private final OrderTypeService orderTypeService;
+    private final DestinationService destinationService;
+
+    @Value("${constants.BASE.PRICE}")
+    private BigDecimal BASE_PRICE;
+
+    @Value("${constants.WEIGHT.COEFFICIENT}")
+    private BigDecimal WEIGHT_COEFFICIENT;
+
+    public OrderServiceImpl(OrderRepository orderRepository, UserRepository userRepository, OrderMapper orderMapper,
+                            OrderTypeService orderTypeService, DestinationService destinationService) {
+        this.orderRepository = orderRepository;
+        this.userRepository = userRepository;
+        this.orderMapper = orderMapper;
+        this.orderTypeService = orderTypeService;
+        this.destinationService = destinationService;
     }
+
+    public List<OrderDto> findAllUserOrders(Long userId) {
+        return orderRepository.findOrderByOwnerId(userId).stream()
+                        .map(orderMapper::orderToOrderDto)
+                        .filter(o -> !o.getStatus().equals(Status.ARCHIVED))
+                        .collect(Collectors.toList());
+    }
+
 
     @Override
     public List<OrderDto> findAllNotPaidUserOrders(Long userId) {
-        return null;
+        return orderRepository.findByStatusAndOwner_Id(Status.NOT_PAID, userId).stream()
+                        .map(orderMapper::orderToOrderDto)
+                        .collect(Collectors.toList());
     }
+
 
     @Override
     public List<OrderDto> findAllArchivedUserOrders(Long userId) {
-        return null;
+        return orderRepository.findByStatusAndOwner_Id(Status.ARCHIVED, userId).stream()
+                        .map(orderMapper::orderToOrderDto)
+                        .collect(Collectors.toList());
     }
 
     @Override
     public List<OrderDto> findAllDeliveredUserOrders(Long userId) {
-        return null;
+        return orderRepository.findByStatusAndOwner_Id(Status.DELIVERED, userId).stream()
+                        .map(orderMapper::orderToOrderDto)
+                        .collect(Collectors.toList());
     }
 
-    @Override
-    public OrderDto createOrder(OrderDto orderDTO, User user) throws OrderCreateException, UserNotFoundException {
-        return null;
-    }
-
-    @Override
-    public OrderDto getOrderDtoById(Long id) throws OrderNotFoundException {
-        return null;
-    }
-
-    @Override
-    public OrderDto getOrderDtoByIdAndUserId(Long id, Long userId) throws OrderNotFoundException {
-        return null;
-    }
-
-    @Override
     public List<OrderDto> findAllPaidOrdersDTO() {
-        return null;
+        return orderRepository.findOrderByStatus(Status.PAID).stream()
+                        .map(orderMapper::orderToOrderDto)
+                        .collect(Collectors.toList());
     }
 
     @Override
     public List<OrderDto> findAllShippedOrdersDTO() {
-        return null;
+        return orderRepository.findOrderByStatus(Status.SHIPPED).stream()
+                        .map(orderMapper::orderToOrderDto)
+                        .collect(Collectors.toList());
     }
 
     @Override
     public List<OrderDto> findAllDeliveredOrdersDto() {
-        return null;
+        return orderRepository.findOrderByStatus(Status.DELIVERED).stream()
+                        .map(orderMapper::orderToOrderDto)
+                        .collect(Collectors.toList());
+    }
+
+    private BigDecimal calculatePrice(Order order) {
+
+        BigDecimal priceForDestination = order.getDestination().getPriceInCents();
+
+        BigDecimal priceForWeight = order.getWeight().multiply(WEIGHT_COEFFICIENT);
+
+        BigDecimal priceForType = order.getOrderType().getPriceInCents();
+
+        return priceForDestination.add(priceForType).add(priceForWeight).add(BASE_PRICE);
+
+    }
+
+    @Override
+    public OrderDto getOrderDtoById(Long id) throws OrderNotFoundException {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(OrderNotFoundException::new);
+
+        return orderMapper.orderToOrderDto(order);
+    }
+
+    @Override
+    public OrderDto getOrderDtoByIdAndUserId(Long id, User user) throws OrderNotFoundException {
+
+        Order order = orderRepository.findByIdAndOwner_id(id, user.getId())
+                .orElseThrow(OrderNotFoundException::new);
+
+        return orderMapper.orderToOrderDto(order);
     }
 
     @Override
     public Order findOrderById(Long orderId) throws OrderNotFoundException {
-        return null;
+        return orderRepository.findById(orderId)
+                .orElseThrow(OrderNotFoundException::new);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW,
+            rollbackFor = OrderCreateException.class)
+    @Override
+    public OrderDto createOrder(OrderDto orderDTO, User user) throws OrderCreateException, UserNotFoundException {
+        Order orderToSave = orderMapper.orderDtoToOrder(orderDTO);
+
+        User userToSave = userRepository.findUserById(user.getId())
+                .orElseThrow(UserNotFoundException::new);
+
+        try {
+            orderToSave.setOrderType(orderTypeService.getOrderTypeById(Long.valueOf(orderDTO.getType())));
+            orderToSave.setDestination(destinationService.getDestination(orderDTO.getDestinationCityFrom(),
+                    orderDTO.getDestinationCityTo()));
+            orderToSave.saveOrder(userToSave);
+            orderToSave.setShippingDate(LocalDate.now());
+            orderToSave.setShippingPriceInCents(calculatePrice(orderToSave));
+            Order order = orderRepository.save(orderToSave);
+            return orderMapper.orderToOrderDto(order);
+        } catch (DataIntegrityViolationException | OrderTypeNotFoundException | DestinationNotFoundException e) {
+            throw new OrderCreateException("Can not create order with id = " + orderDTO.getId());
+        }
     }
 
     @Override
     public OrderDto moveOrderToArchive(Long orderId) throws OrderNotFoundException {
-        return null;
+        Order order = findOrderById(orderId);
+
+        if (order.getStatus().equals(Status.RECEIVED)) {
+            order.setStatus(Status.ARCHIVED);
+            orderRepository.save(order);
+        }
+        return orderMapper.orderToOrderDto(order);
     }
 
     @Override
     public void deleteOrderById(Long orderId) throws OrderNotFoundException {
+        Order order = findOrderById(orderId);
 
+        if (order.getStatus().equals(Status.NOT_PAID)){
+            orderRepository.delete(order);
+        }
+
+        log.info("deleting order");
     }
 }
