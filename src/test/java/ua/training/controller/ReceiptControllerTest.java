@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ua.training.api.dto.ReceiptDto;
@@ -18,9 +19,9 @@ import ua.training.service.impl.ReceiptServiceImpl;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -37,6 +38,9 @@ class ReceiptControllerTest extends AbstractRestControllerTest{
     ReceiptController controller;
 
     MockMvc mockMvc;
+
+    @Mock
+    Authentication mockPrincipal;
 
     User user;
 
@@ -66,30 +70,17 @@ class ReceiptControllerTest extends AbstractRestControllerTest{
     @Test
     void showAllUserCheck() throws Exception {
 
-        when(receiptService.showChecksByUser(anyLong())).thenReturn(receiptDtoList);
+        when(receiptService.showChecksByUser(anyString())).thenReturn(receiptDtoList);
+        when(mockPrincipal.getName()).thenReturn("login");
 
         mockMvc.perform(get(ReceiptController.BASE_URL)
-                .flashAttr("user", user)
+                .principal(mockPrincipal)
                 .contentType(MediaType.APPLICATION_JSON)
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(receiptDtoList.size())));
 
-        verify(receiptService).showChecksByUser(anyLong());
-    }
-
-    @Test
-    void showAllCheck() throws Exception {
-
-        when(receiptService.showAllChecks()).thenReturn(receiptDtoList);
-
-        mockMvc.perform(get(ReceiptController.BASE_URL + "/all")
-                .contentType(MediaType.APPLICATION_JSON)
-        )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(receiptDtoList.size())));
-
-        verify(receiptService).showAllChecks();
+        verify(receiptService).showChecksByUser(anyString());
     }
 
     @Test
@@ -101,7 +92,7 @@ class ReceiptControllerTest extends AbstractRestControllerTest{
                 .contentType(MediaType.APPLICATION_JSON)
         )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", equalTo(1)));
+                .andExpect(jsonPath("$", hasSize(1)));
 
         verify(receiptService).showCheckById(anyLong());
     }

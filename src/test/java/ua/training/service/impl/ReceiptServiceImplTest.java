@@ -81,23 +81,25 @@ class ReceiptServiceImplTest {
 
     @Test
     void showChecksByUser() {
-        Receipt receipt1 = Receipt.builder().id(1L).user(User.builder().id(3L).build()).build();
-        Receipt receipt2 = Receipt.builder().id(2L).user(User.builder().id(4L).build()).build();
+        final String LOGIN1 = "login1";
+        final String LOGIN2 = "login2";
+        Receipt receipt1 = Receipt.builder().id(1L).user(User.builder().id(3L).login(LOGIN1).build()).build();
+        Receipt receipt2 = Receipt.builder().id(2L).user(User.builder().id(4L).login(LOGIN2).build()).build();
 
         List<Receipt> receiptList = Arrays.asList(receipt1, receipt2);
-        when(receiptRepository.findAllByUser_Id(anyLong())).thenReturn(receiptList);
+        when(receiptRepository.findAllByUser_Login(anyString())).thenReturn(receiptList);
 
         List<ReceiptDto> receiptDtoList = receiptList.stream()
                 .map(ReceiptMapper.INSTANCE::orderCheckToOrderCheckDto)
                 .collect(Collectors.toList());
 
-        List<ReceiptDto> result = service.showChecksByUser(3L);
+        List<ReceiptDto> result = service.showChecksByUser(LOGIN1);
 
         assertEquals(result.size(), receiptDtoList.size());
         assertEquals(result.get(0).getUserId(), receiptDtoList.get(0).getUserId());
         assertEquals(result.get(1).getUserId(), receiptDtoList.get(1).getUserId());
 
-        verify(receiptRepository).findAllByUser_Id(anyLong());
+        verify(receiptRepository).findAllByUser_Login(anyString());
     }
 
     @Test
@@ -110,7 +112,7 @@ class ReceiptServiceImplTest {
                 .id(orderDtoId)
                 .shippingPriceInCents(BigDecimal.ONE).build());
 
-        when(userService.findUserDTOById(anyLong())).thenReturn(UserDto.builder().id(userId).build());
+        when(userService.findUserDTOById(anyLong())).thenReturn(UserDto.builder().login("login").id(userId).build());
 
         ReceiptDto result = service.createCheckDto(orderDtoId, bankCardDto, userId);
 

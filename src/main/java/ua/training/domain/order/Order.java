@@ -27,6 +27,7 @@ public class Order {
     private OrderType orderType;
 
     @ManyToOne
+    @JoinColumn(name = "owner_id")
     private User owner;
 
     private BigDecimal weight;

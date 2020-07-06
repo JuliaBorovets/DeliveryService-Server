@@ -1,5 +1,6 @@
 package ua.training.domain.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -39,6 +40,7 @@ public class User implements UserDetails {
     @Enumerated(value = EnumType.STRING)
     private Role role = Role.ROLE_USER;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "owner")
     private List<Order> orders = new ArrayList<>();
 

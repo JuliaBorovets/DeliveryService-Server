@@ -50,8 +50,8 @@ public class OrderServiceImpl implements OrderService {
         this.destinationService = destinationService;
     }
 
-    public List<OrderDto> findAllUserOrders(Long userId) {
-        return orderRepository.findOrderByOwnerId(userId).stream()
+    public List<OrderDto> findAllUserOrders(String login) {
+        return orderRepository.findOrderByOwner_Login(login).stream()
                         .map(orderMapper::orderToOrderDto)
                         .filter(o -> !o.getStatus().equals(Status.ARCHIVED))
                         .collect(Collectors.toList());
@@ -59,23 +59,23 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Override
-    public List<OrderDto> findAllNotPaidUserOrders(Long userId) {
-        return orderRepository.findByStatusAndOwner_Id(Status.NOT_PAID, userId).stream()
+    public List<OrderDto> findAllNotPaidUserOrders(String login) {
+        return orderRepository.findByStatusAndOwner_Login(Status.NOT_PAID, login).stream()
                         .map(orderMapper::orderToOrderDto)
                         .collect(Collectors.toList());
     }
 
 
     @Override
-    public List<OrderDto> findAllArchivedUserOrders(Long userId) {
-        return orderRepository.findByStatusAndOwner_Id(Status.ARCHIVED, userId).stream()
+    public List<OrderDto> findAllArchivedUserOrders(String login) {
+        return orderRepository.findByStatusAndOwner_Login(Status.ARCHIVED, login).stream()
                         .map(orderMapper::orderToOrderDto)
                         .collect(Collectors.toList());
     }
 
     @Override
-    public List<OrderDto> findAllDeliveredUserOrders(Long userId) {
-        return orderRepository.findByStatusAndOwner_Id(Status.DELIVERED, userId).stream()
+    public List<OrderDto> findAllDeliveredUserOrders(String login) {
+        return orderRepository.findByStatusAndOwner_Login(Status.DELIVERED, login).stream()
                         .map(orderMapper::orderToOrderDto)
                         .collect(Collectors.toList());
     }
@@ -121,9 +121,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderDto getOrderDtoByIdAndUserId(Long id, User user) throws OrderNotFoundException {
+    public OrderDto getOrderDtoByIdAndUserId(Long id, String login) throws OrderNotFoundException {
 
-        Order order = orderRepository.findByIdAndOwner_id(id, user.getId())
+        Order order = orderRepository.findByIdAndOwner_Login(id, login)
                 .orElseThrow(OrderNotFoundException::new);
 
         return orderMapper.orderToOrderDto(order);
@@ -138,13 +138,15 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(propagation = Propagation.REQUIRES_NEW,
             rollbackFor = OrderCreateException.class)
     @Override
-    public OrderDto createOrder(OrderDto orderDTO, User user) throws OrderCreateException, UserNotFoundException {
+    public OrderDto createOrder(OrderDto orderDTO, String login) throws OrderCreateException, UserNotFoundException {
         Order orderToSave = orderMapper.orderDtoToOrder(orderDTO);
 
-        User userToSave = userRepository.findUserById(user.getId())
+        User userToSave = userRepository.findByLogin(login)
                 .orElseThrow(UserNotFoundException::new);
 
         try {
+
+            log.error(orderDTO.toString());
             orderToSave.setOrderType(orderTypeService.getOrderTypeById(Long.valueOf(orderDTO.getType())));
             orderToSave.setDestination(destinationService.getDestination(orderDTO.getDestinationCityFrom(),
                     orderDTO.getDestinationCityTo()));

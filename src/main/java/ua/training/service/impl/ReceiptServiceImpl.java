@@ -51,9 +51,9 @@ public class ReceiptServiceImpl implements ReceiptService {
     }
 
     @Override
-    public List<ReceiptDto>  showChecksByUser(Long userId) {
+    public List<ReceiptDto>  showChecksByUser(String login) {
         return receiptRepository
-                .findAllByUser_Id(userId).stream()
+                .findAllByUser_Login(login).stream()
                 .map(receiptMapper.INSTANCE::orderCheckToOrderCheckDto)
                 .collect(Collectors.toList());
     }

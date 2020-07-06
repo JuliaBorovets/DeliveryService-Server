@@ -13,7 +13,7 @@ public interface ReceiptService {
 
     ReceiptDto showCheckById(Long checkId) throws OrderCheckNotFoundException;
 
-    List<ReceiptDto> showChecksByUser(Long userId);
+    List<ReceiptDto> showChecksByUser(String login);
 
     ReceiptDto createCheckDto(Long orderDtoId, BankCardDto bankCardDtoId, Long userId) throws OrderNotFoundException;
 }

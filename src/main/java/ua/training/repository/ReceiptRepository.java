@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface ReceiptRepository extends JpaRepository<Receipt, Long> {
 
-    List<Receipt> findAllByUser_Id(Long id);
+    List<Receipt> findAllByUser_Login(String login);
 
     @Query("select count (e) from Receipt e where year(e.creationDate) = :year ")
     Long ordersByCreationYear( @Param("year") int year);

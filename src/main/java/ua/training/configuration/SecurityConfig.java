@@ -37,15 +37,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.cors().and()
                 .authorizeRequests()
-                .antMatchers("/error", "/api/user/**").permitAll()
+                .antMatchers("/error", "/api/**").permitAll()
                 .antMatchers("/api/admin/**").hasRole("ADMIN")
+                .antMatchers( "/api/user/**").hasAnyRole("ADMIN", "USER")
                 .anyRequest().fullyAuthenticated()
                 .and()
                 .logout().permitAll()
                 .logoutRequestMatcher(new AntPathRequestMatcher("/api/user/logout", "POST"))
                 .and()
-                //.formLogin().loginPage("/api/user/login").and()
-                .formLogin().disable()
+                .formLogin().loginPage("/api/user/login").and()
                 .httpBasic().and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .csrf().disable();

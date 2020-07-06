@@ -21,7 +21,7 @@ import java.util.List;
 @RequestMapping(UserController.BASE_URL)
 public class UserController {
 
-    public static final String BASE_URL = "/api/user";
+    public static final String BASE_URL = "/api";
 
     private final UserService userService;
 

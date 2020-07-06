@@ -13,10 +13,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     List<Order> findOrderByOwner_Login(String login);
 
-    List<Order> findByStatusAndOwner_Id(Status status, Long ownerId);
+    List<Order> findByStatusAndOwner_Login(Status status, String login);
 
     List<Order> findOrderByStatus(Status status);
 
-    Optional<Order> findByIdAndOwner_id(Long orderId, Long ownerId);
+    Optional<Order> findByIdAndOwner_Login(Long orderId, String login);
 
 }

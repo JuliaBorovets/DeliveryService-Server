@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ua.training.api.dto.OrderDto;
@@ -20,8 +21,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -33,6 +33,9 @@ class OrderControllerTest extends AbstractRestControllerTest{
 
     @Mock
     OrderService orderService;
+
+    @Mock
+    Authentication mockPrincipal;
 
     @InjectMocks
     OrderController controller;
@@ -69,76 +72,81 @@ class OrderControllerTest extends AbstractRestControllerTest{
     @Test
     void showAllOrders() throws Exception {
 
-        when(orderService.findAllUserOrders(anyLong())).thenReturn(orderListDto);
+        when(orderService.findAllUserOrders(anyString())).thenReturn(orderListDto);
+        when(mockPrincipal.getName()).thenReturn("login");
 
         mockMvc.perform(get(OrderController.BASE_URL + "/show/all")
-                .flashAttr("user", user)
+                .principal(mockPrincipal)
                 .contentType(MediaType.APPLICATION_JSON)
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(orderListDto.size())));
 
-        verify(orderService).findAllUserOrders(anyLong());
+        verify(orderService).findAllUserOrders(any());
     }
 
     @Test
     void showNotPaidOrders() throws Exception {
 
-        when(orderService.findAllNotPaidUserOrders(anyLong())).thenReturn(orderListDto);
+        when(orderService.findAllNotPaidUserOrders(anyString())).thenReturn(orderListDto);
+        when(mockPrincipal.getName()).thenReturn("login");
 
         mockMvc.perform(get(OrderController.BASE_URL + "/show/not_paid")
-                .flashAttr("user", user)
+                .principal(mockPrincipal)
                 .contentType(MediaType.APPLICATION_JSON)
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(orderListDto.size())));
 
-        verify(orderService).findAllNotPaidUserOrders(anyLong());
+        verify(orderService).findAllNotPaidUserOrders(anyString());
     }
 
     @Test
     void showDeliveredOrders() throws Exception {
 
-        when(orderService.findAllDeliveredUserOrders(anyLong())).thenReturn(orderListDto);
+        when(orderService.findAllDeliveredUserOrders(anyString())).thenReturn(orderListDto);
+        when(mockPrincipal.getName()).thenReturn("login");
 
         mockMvc.perform(get(OrderController.BASE_URL + "/show/delivered")
-                .flashAttr("user", user)
+                .principal(mockPrincipal)
                 .contentType(MediaType.APPLICATION_JSON)
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(orderListDto.size())));
 
-        verify(orderService).findAllDeliveredUserOrders(anyLong());
+        verify(orderService).findAllDeliveredUserOrders(anyString());
     }
 
     @Test
     void showArchivedOrders() throws Exception {
 
-        when(orderService.findAllArchivedUserOrders(anyLong())).thenReturn(orderListDto);
+        when(orderService.findAllArchivedUserOrders(anyString())).thenReturn(orderListDto);
+        when(mockPrincipal.getName()).thenReturn("login");
 
         mockMvc.perform(get(OrderController.BASE_URL + "/show/archived")
-                .flashAttr("user", user)
+                .principal(mockPrincipal)
                 .contentType(MediaType.APPLICATION_JSON)
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(orderListDto.size())));
 
-        verify(orderService).findAllArchivedUserOrders(anyLong());
+        verify(orderService).findAllArchivedUserOrders(anyString());
     }
 
     @Test
     void getAllUserOrders() throws Exception {
 
-        when(orderService.findAllUserOrders(anyLong())).thenReturn(orderListDto);
+        when(orderService.findAllUserOrders(any())).thenReturn(orderListDto);
+        when(mockPrincipal.getName()).thenReturn("login");
 
         mockMvc.perform(get(OrderController.BASE_URL + "/all_orders")
-                .flashAttr("user", user)
+                .principal(mockPrincipal)
                 .contentType(MediaType.APPLICATION_JSON)
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(orderListDto.size())));
 
-        verify(orderService).findAllUserOrders(anyLong());
+        verify(orderService).findAllUserOrders(any());
     }
 
     @Test
@@ -146,19 +154,22 @@ class OrderControllerTest extends AbstractRestControllerTest{
 
         OrderDto orderDto = OrderDto.builder().id(1L).build();
 
-        when(orderService.getOrderDtoById(anyLong())).thenReturn(orderDto);
+        when(mockPrincipal.getName()).thenReturn("login");
+        when(orderService.getOrderDtoByIdAndUserId(anyLong(), anyString())).thenReturn(orderDto);
 
-        mockMvc.perform(get(OrderController.BASE_URL + "/find/1")
+        mockMvc.perform(get(OrderController.BASE_URL + "/find_order/1")
+                .principal(mockPrincipal)
                 .contentType(MediaType.APPLICATION_JSON)
         )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", equalTo(1)));
+                .andExpect(jsonPath("$", hasSize(1)));
 
-        verify(orderService).getOrderDtoById(anyLong());
+        verify(orderService).getOrderDtoByIdAndUserId(anyLong(), anyString());
     }
 
     @Test
     void createNewOrder() throws Exception {
+        when(mockPrincipal.getName()).thenReturn("login");
 
         OrderDto orderDto = OrderDto.builder()
                 .id(2L)
@@ -171,7 +182,7 @@ class OrderControllerTest extends AbstractRestControllerTest{
         when(orderService.createOrder(any(), any())).thenReturn(orderDto);
 
         mockMvc.perform(post(OrderController.BASE_URL)
-                .flashAttr("user", user)
+                .principal(mockPrincipal)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(orderDto))
         )
@@ -244,25 +255,4 @@ class OrderControllerTest extends AbstractRestControllerTest{
         verify(orderService).findAllDeliveredOrdersDto();
     }
 
-    @Test
-    void findOrderByIdAndUserId() throws Exception {
-        OrderDto orderDto = OrderDto.builder()
-                .id(2L)
-                .description("description")
-                .destinationCityFrom("destinationCityFrom")
-                .destinationCityTo("to")
-                .type("2")
-                .weight(BigDecimal.valueOf(77)).build();
-
-        when(orderService.getOrderDtoByIdAndUserId(anyLong(), any(User.class))).thenReturn(orderDto);
-
-        mockMvc.perform(get(OrderController.BASE_URL + "/find_user/2")
-                .flashAttr("user", user)
-                .contentType(MediaType.APPLICATION_JSON)
-        )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.description", equalTo(orderDto.getDescription())));
-
-        verify(orderService).getOrderDtoByIdAndUserId(anyLong(), any(User.class));
-    }
 }

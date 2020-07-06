@@ -9,14 +9,21 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import ua.training.api.dto.ReceiptDto;
 import ua.training.api.dto.StatisticsDto;
 import ua.training.service.AdminService;
+import ua.training.service.ReceiptService;
 
+import java.util.Arrays;
+import java.util.List;
+
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
@@ -24,6 +31,9 @@ class AdminControllerTest {
 
     @Mock
     AdminService adminService;
+
+    @Mock
+    ReceiptService receiptService;
 
     @InjectMocks
     AdminController controller;
@@ -86,5 +96,21 @@ class AdminControllerTest {
                 .andExpect(status().isOk());
 
         verify(adminService).createStatisticsDto();
+    }
+    @Test
+    void showAllUserCheck() throws Exception {
+
+        List<ReceiptDto>receiptDtoList = Arrays.asList(
+                ReceiptDto.builder().build(),
+                ReceiptDto.builder().build()
+        );
+        when(receiptService.showAllChecks()).thenReturn(receiptDtoList);
+        mockMvc.perform(get(AdminController.BASE_URL + "/show_all_receipts")
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(receiptDtoList.size())));
+
+        verify(receiptService).showAllChecks();
     }
 }
