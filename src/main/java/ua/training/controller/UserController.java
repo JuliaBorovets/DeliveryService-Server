@@ -60,18 +60,28 @@ public class UserController {
         return userService.changeRole(id, role);
     }
 
-    @GetMapping("/find")
+    @GetMapping("/find/{login}")
     @ResponseStatus(HttpStatus.OK)
-    public List<UserDto> findUserByLogin(@RequestBody UserDto userDto){
+    public List<UserDto> findUserByLogin(@PathVariable String login){
 
-        return userService.findAllByLoginLike(userDto.getLogin());
+        if (login == null){
+            return userService.findAllUsers();
+        }
+        return userService.findAllByLoginLike(login);
     }
 
-    @GetMapping("/all")
+    @GetMapping("/users")
     @ResponseStatus(HttpStatus.OK)
     public List<UserDto> getAllUsers() {
 
         return userService.findAllUsers();
     }
+
+    @PutMapping("/update")
+    @ResponseStatus(HttpStatus.OK)
+    public UserDto updateUserInfo(@RequestBody UserDto userDto){
+        return userService.updateUserInfo(userDto);
+    }
+
 }
 

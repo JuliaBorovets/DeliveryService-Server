@@ -180,4 +180,38 @@ class UserServiceImplTest {
         assertEquals(result.getId(), ID);
         assertEquals(result.getRole(), Role.ROLE_ADMIN);
     }
+
+
+    @Test
+    void updateUserInfo() {
+        final Long ID = 1L;
+        final String PASSWORD = "password";
+
+        User user =  User
+                .builder()
+                .id(ID)
+                .password(PASSWORD)
+                .build();
+
+        UserDto userDto =  UserDto
+                .builder()
+                .id(user.getId())
+                .password(user.getPassword())
+                .build();
+
+        when(userMapper.userDtoToUser(any(UserDto.class))).thenReturn(user);
+        when(userMapper.userToUserDto(user)).thenReturn(userDto);
+        when(passwordEncoder.encode(anyString())).thenReturn(PASSWORD);
+        when(userRepository.save(any())).thenReturn(user);
+
+        UserDto result = service.updateUserInfo(userDto);
+
+        assertEquals(result.getId(), ID);
+        assertEquals(result.getPassword(), PASSWORD);
+
+        verify(userRepository).save(any());
+        verify(passwordEncoder).encode(anyString());
+        verify(userMapper).userToUserDto(any(User.class));
+        verify(userMapper).userDtoToUser(any(UserDto.class));
+    }
 }

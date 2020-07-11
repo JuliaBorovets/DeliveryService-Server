@@ -36,7 +36,6 @@ public class OrderController {
         this.destinationService = destinationService;
     }
 
-
     @GetMapping("/show/{filter}")
     @ResponseStatus(HttpStatus.OK)
     public List<OrderDto> showUserOrders(@PathVariable String filter, Authentication user){

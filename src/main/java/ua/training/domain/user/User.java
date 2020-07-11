@@ -35,6 +35,7 @@ public class User implements UserDetails {
     @Column(name = "email",  unique = true)
     private String email;
 
+    @JsonIgnore
     private String password;
 
     @Enumerated(value = EnumType.STRING)
@@ -44,15 +45,18 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "owner")
     private List<Order> orders = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<Receipt> receipts = new ArrayList<>();
 
+    @JsonIgnore
     @ManyToMany(cascade = CascadeType.REFRESH)
     @JoinTable(name = "user_card",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "card_id"))
     private Set<BankCard> cards = new HashSet<>();
 
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<GrantedAuthority> result = new HashSet<>();

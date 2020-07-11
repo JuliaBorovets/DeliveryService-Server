@@ -90,4 +90,13 @@ public class UserServiceImpl implements UserService {
         user.setRole(role);
         return userMapper.userToUserDto(userRepository.save(user));
     }
+
+    @Override
+    public UserDto updateUserInfo(UserDto userDto) {
+
+        User user = userMapper.userDtoToUser(userDto);
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+
+        return userMapper.userToUserDto(userRepository.save(user));
+    }
 }

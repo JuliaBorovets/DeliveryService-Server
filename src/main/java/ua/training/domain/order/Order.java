@@ -1,5 +1,6 @@
 package ua.training.domain.order;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import ua.training.domain.user.User;
 
@@ -32,6 +33,7 @@ public class Order {
 
     private BigDecimal weight;
 
+    @JsonIgnore
     @ManyToOne
     private Destination destination;
 
@@ -44,6 +46,7 @@ public class Order {
 
     private BigDecimal shippingPriceInCents;
 
+    @JsonIgnore
     @OneToOne(optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "receipt_id", referencedColumnName = "id", unique = true)
     private Receipt receipt;

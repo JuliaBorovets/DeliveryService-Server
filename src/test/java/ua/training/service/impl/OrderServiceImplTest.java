@@ -15,6 +15,7 @@ import ua.training.exception.OrderNotFoundException;
 import ua.training.repository.OrderRepository;
 import ua.training.repository.UserRepository;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +42,10 @@ class OrderServiceImplTest {
 
     @Mock
     DestinationServiceImpl destinationService;
+
+    BigDecimal BASE_PRICE = BigDecimal.valueOf(6);
+
+    BigDecimal WEIGHT_COEFFICIENT = BigDecimal.valueOf(7);
 
     @InjectMocks
     OrderServiceImpl service;
@@ -304,4 +309,5 @@ class OrderServiceImplTest {
         verify(orderRepository).findById(anyLong());
         verify(orderRepository, never()).deleteById(anyLong());
     }
+
 }

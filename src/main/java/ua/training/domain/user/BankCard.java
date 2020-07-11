@@ -35,6 +35,7 @@ public class BankCard {
     @ManyToMany(mappedBy = "cards", cascade = CascadeType.REFRESH)
     private List<User> users = new ArrayList<>();
 
+
     @OneToMany(mappedBy = "bankCard")
     private List<Receipt> receipts = new ArrayList<>();
 

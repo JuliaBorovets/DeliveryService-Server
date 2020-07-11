@@ -10,10 +10,14 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import ua.training.api.dto.DestinationDto;
 import ua.training.api.dto.OrderDto;
+import ua.training.api.dto.OrderTypeDto;
 import ua.training.domain.user.Role;
 import ua.training.domain.user.User;
+import ua.training.service.DestinationService;
 import ua.training.service.OrderService;
+import ua.training.service.OrderTypeService;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -36,6 +40,12 @@ class OrderControllerTest extends AbstractRestControllerTest{
 
     @Mock
     Authentication mockPrincipal;
+
+    @Mock
+    OrderTypeService orderTypeService;
+
+    @Mock
+    DestinationService destinationService;
 
     @InjectMocks
     OrderController controller;
@@ -255,4 +265,56 @@ class OrderControllerTest extends AbstractRestControllerTest{
         verify(orderService).findAllDeliveredOrdersDto();
     }
 
+    @Test
+    void findAllTypes() throws Exception {
+        List<OrderTypeDto> types = Arrays.asList(
+                new OrderTypeDto(),
+                new OrderTypeDto()
+        );
+        when(orderTypeService.getAllOrderTypeDto()).thenReturn(types);
+
+        mockMvc.perform(get(OrderController.BASE_URL + "/types")
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(types.size())));
+
+        verify(orderTypeService).getAllOrderTypeDto();
+    }
+
+    @Test
+    void findDestinationsFrom() throws Exception {
+        List<DestinationDto> destinationDtoList = Arrays.asList(
+                DestinationDto.builder().cityFrom("from1").build(),
+                DestinationDto.builder().cityFrom("from2").build()
+        );
+
+        when(destinationService.getAllDestinationDto()).thenReturn(destinationDtoList);
+
+        mockMvc.perform(get(OrderController.BASE_URL + "/destinations_from")
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(destinationDtoList.size())));
+
+        verify(destinationService).getAllDestinationDto();
+    }
+
+    @Test
+    void findDestinationsTo() throws Exception {
+        List<DestinationDto> destinationDtoList = Arrays.asList(
+                DestinationDto.builder().cityTo("to1").build(),
+                DestinationDto.builder().cityTo("to2").build()
+        );
+
+        when(destinationService.getAllDestinationDto()).thenReturn(destinationDtoList);
+
+        mockMvc.perform(get(OrderController.BASE_URL + "/destinations_to")
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(destinationDtoList.size())));
+
+        verify(destinationService).getAllDestinationDto();
+    }
 }

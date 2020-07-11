@@ -1,5 +1,6 @@
 package ua.training.domain.order;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import ua.training.domain.user.BankCard;
 import ua.training.domain.user.User;
@@ -27,13 +28,10 @@ public class Receipt {
 
     private BigDecimal priceInCents;
 
-    @Column(name = "status")
-    @Enumerated(value = EnumType.STRING)
-    private Status status;
-
     @ManyToOne
     private User user;
 
+    @JsonIgnore
     @ManyToOne
     private BankCard bankCard;
 

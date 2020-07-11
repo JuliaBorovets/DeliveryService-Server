@@ -1,6 +1,5 @@
 package ua.training.domain.order;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -30,7 +29,6 @@ public class Destination {
 
     private BigDecimal priceInCents;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "destination")
     private List<Order> orders = new ArrayList<>();
 }

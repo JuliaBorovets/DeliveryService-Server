@@ -22,4 +22,6 @@ public interface UserService {
     UserDto changeRole(Long userId, Role role);
 
     List<UserDto> findAllByLoginLike(String login);
+
+    UserDto updateUserInfo(UserDto userDto);
 }

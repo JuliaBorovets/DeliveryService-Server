@@ -9,6 +9,8 @@ import ua.training.exception.OrderNotFoundException;
 import ua.training.service.AdminService;
 import ua.training.service.ReceiptService;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -21,7 +23,7 @@ public class AdminController {
     private final AdminService adminService;
     private final ReceiptService receiptService;
 
-    public AdminController(AdminService adminService,ReceiptService receiptService) {
+    public AdminController(AdminService adminService, ReceiptService receiptService) {
         this.adminService = adminService;
         this.receiptService = receiptService;
     }
@@ -51,9 +53,26 @@ public class AdminController {
     @ResponseStatus(HttpStatus.OK)
     public StatisticsDto createGeneralStatistics(){
 
-        return adminService.createStatisticsDto();
+        return createStatistics();
     }
 
+    @GetMapping("/numbersYear")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Long> createStatisticsNumbersByYear(){
+
+        return new ArrayList<>(createStatistics().getNumberOfOrdersByForYear().values());
+    }
+
+    @GetMapping("/earningsYear")
+    @ResponseStatus(HttpStatus.OK)
+    public List<BigDecimal> createStatisticsEarningsByYear(){
+
+        return new ArrayList<>(createStatistics().getEarningsOfOrdersByForYear().values());
+    }
+
+    private StatisticsDto createStatistics(){
+        return adminService.createStatisticsDto();
+    }
 
     @GetMapping("/show_all_receipts")
     @ResponseStatus(HttpStatus.OK)

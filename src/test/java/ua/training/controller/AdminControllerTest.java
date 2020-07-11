@@ -15,6 +15,7 @@ import ua.training.service.AdminService;
 import ua.training.service.ReceiptService;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -97,6 +98,40 @@ class AdminControllerTest {
 
         verify(adminService).createStatisticsDto();
     }
+
+    @Test
+    void createStatisticsNumbersByYear() throws Exception {
+
+        when(adminService.createStatisticsDto()).thenReturn(
+                StatisticsDto.builder()
+                        .numberOfOrdersByForYear(new HashMap<>())
+                        .build());
+
+        mockMvc.perform(get(AdminController.BASE_URL + "/numbersYear")
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk());
+
+        verify(adminService).createStatisticsDto();
+
+    }
+
+    @Test
+    void createStatisticsEarningsByYear() throws Exception {
+        when(adminService.createStatisticsDto()).thenReturn(
+                StatisticsDto.builder()
+                        .earningsOfOrdersByForYear(new HashMap<>())
+                        .build());
+
+        mockMvc.perform(get(AdminController.BASE_URL + "/earningsYear")
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk());
+
+        verify(adminService).createStatisticsDto();
+
+    }
+
     @Test
     void showAllUserCheck() throws Exception {
 
@@ -113,4 +148,5 @@ class AdminControllerTest {
 
         verify(receiptService).showAllChecks();
     }
+
 }
