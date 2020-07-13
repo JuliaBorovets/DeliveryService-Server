@@ -1,14 +1,15 @@
 package ua.training.api.dto;
 
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-@Setter
-@NoArgsConstructor
 @AllArgsConstructor
 @ToString
 @Builder

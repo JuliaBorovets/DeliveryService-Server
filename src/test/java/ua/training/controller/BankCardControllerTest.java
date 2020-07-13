@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ua.training.api.dto.BankCardDto;
 import ua.training.api.dto.ReceiptDto;
+import ua.training.exception.BankCardException;
 import ua.training.exception.ControllerExceptionHandler;
 import ua.training.service.BankCardService;
 
@@ -103,6 +104,23 @@ class BankCardControllerTest extends AbstractRestControllerTest {
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", equalTo(2)));
+
+        verify(bankCardService).findBankCardDtoById(anyLong());
+
+    }
+
+    @Test
+    void getBankCardByIdException() throws Exception {
+        final Long ID = 2L;
+
+        BankCardDto bankCardDto = BankCardDto.builder().id(ID).build();
+
+        when(bankCardService.findBankCardDtoById(anyLong())).thenThrow(new BankCardException("bank card exception"));
+
+        mockMvc.perform(get(BankCardController.BASE_URL + "/2")
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isBadRequest());
 
         verify(bankCardService).findBankCardDtoById(anyLong());
 

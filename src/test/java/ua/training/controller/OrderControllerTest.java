@@ -16,6 +16,8 @@ import ua.training.api.dto.OrderTypeDto;
 import ua.training.domain.user.Role;
 import ua.training.domain.user.User;
 import ua.training.exception.ControllerExceptionHandler;
+import ua.training.exception.OrderCreateException;
+import ua.training.exception.OrderNotFoundException;
 import ua.training.service.DestinationService;
 import ua.training.service.OrderService;
 import ua.training.service.OrderTypeService;
@@ -204,6 +206,29 @@ class OrderControllerTest extends AbstractRestControllerTest{
         verify(orderService).createOrder(any(), any());
     }
 
+    @Test
+    void createNewOrderException() throws Exception {
+        when(mockPrincipal.getName()).thenReturn("login");
+
+        OrderDto orderDto = OrderDto.builder()
+                .id(2L)
+                .description("description")
+                .destinationCityFrom("destinationCityFrom")
+                .destinationCityTo("to")
+                .type("2")
+                .weight(BigDecimal.valueOf(77)).build();
+
+        when(orderService.createOrder(any(), any())).thenThrow(new OrderCreateException("can not create"));
+
+        mockMvc.perform(post(OrderController.BASE_URL)
+                .principal(mockPrincipal)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(orderDto))
+        )
+                .andExpect(status().isBadRequest());
+
+        verify(orderService).createOrder(any(), any());
+    }
 
     @Test
     void archiveOrder() throws Exception {
@@ -212,6 +237,19 @@ class OrderControllerTest extends AbstractRestControllerTest{
                 .contentType(MediaType.APPLICATION_JSON)
         )
                 .andExpect(status().isOk());
+
+        verify(orderService).moveOrderToArchive(anyLong());
+    }
+
+    @Test
+    void archiveOrderException() throws Exception {
+
+        when(orderService.moveOrderToArchive(anyLong())).thenThrow(new OrderNotFoundException());
+
+        mockMvc.perform(patch(OrderController.BASE_URL + "/1")
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isNotFound());
 
         verify(orderService).moveOrderToArchive(anyLong());
     }
