@@ -18,10 +18,7 @@ import ua.training.domain.order.Order;
 import ua.training.domain.order.OrderType;
 import ua.training.domain.order.Status;
 import ua.training.domain.user.User;
-import ua.training.exception.DestinationNotFoundException;
-import ua.training.exception.OrderNotFoundException;
-import ua.training.exception.OrderTypeNotFoundException;
-import ua.training.exception.UserNotFoundException;
+import ua.training.exception.*;
 import ua.training.repository.OrderRepository;
 import ua.training.repository.UserRepository;
 
@@ -398,5 +395,29 @@ class OrderServiceImplTest {
         verify(destinationService).getDestination(anyString(), anyString());
         verify(orderRepository).save(any());
         verify(orderMapper).orderToOrderDto(any(Order.class));
+    }
+
+    @Test
+    void createOrderExc() throws OrderTypeNotFoundException, DestinationNotFoundException {
+        Order order = Order.builder()
+                .weight(BigDecimal.ONE)
+                .destination(Destination.builder().priceInCents(BigDecimal.ONE).build())
+                .orderType(OrderType.builder().priceInCents(BigDecimal.ONE).build()).build();
+        OrderDto orderDto = OrderDto.builder()
+                .orderType(OrderTypeDto.builder().id(1L).build())
+                .type("1")
+                .destinationCityFrom("from")
+                .destinationCityTo("to").build();
+
+        when(orderMapper.orderDtoToOrder(any(OrderDto.class))).thenReturn(order);
+
+        when(userRepository.findByLogin(anyString())).thenReturn(Optional.of(User.builder().orders(orderList).build()));
+
+        when(orderTypeService.getOrderTypeById(anyLong())).thenThrow(new OrderTypeNotFoundException("exc"));
+
+        assertThrows(OrderCreateException.class,
+                () -> {
+                    service.createOrder(orderDto, "login");
+                });
     }
 }
