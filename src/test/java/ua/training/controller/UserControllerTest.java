@@ -70,6 +70,24 @@ class UserControllerTest extends AbstractRestControllerTest{
     }
 
     @Test
+    void registerValidation() throws Exception {
+
+        UserDto userDto = UserDto.builder()
+                .firstName("FirstName")
+                .lastName("LastName")
+                .login("loginnnnn")
+                .password("password")
+                .email("email@g.dd").build();
+
+        mockMvc.perform(post(UserController.BASE_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(userDto))
+        )
+                .andExpect(status().is4xxClientError());
+
+    }
+
+    @Test
     void registerException() throws Exception {
 
         when(userService.findByLogin(anyString())).thenReturn(User.builder().login("login").build());
