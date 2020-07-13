@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import ua.training.api.dto.UserDto;
 import ua.training.api.mapper.UserMapper;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -100,6 +102,34 @@ class UserServiceImplTest {
         verify(userMapper).userToUserDto(any(User.class));
         verify(userMapper).userDtoToUser(any(UserDto.class));
 
+    }
+
+    @Test
+    void saveUserException() throws RegException {
+
+        final Long ID = 1L;
+        final String PASSWORD = "password";
+
+        User user =  User
+                .builder()
+                .id(ID)
+                .password(PASSWORD)
+                .build();
+
+        UserDto userDto =  UserDto
+                .builder()
+                .id(user.getId())
+                .password(user.getPassword())
+                .build();
+
+        when(userMapper.userDtoToUser(any(UserDto.class))).thenReturn(user);
+        when(passwordEncoder.encode(anyString())).thenReturn(PASSWORD);
+        when(userRepository.save(any())).thenThrow(new DataIntegrityViolationException("reg exception"));
+
+        assertThrows(RegException.class,
+                () -> {
+                    service.saveNewUserDto(userDto);
+                });
     }
 
     @Test

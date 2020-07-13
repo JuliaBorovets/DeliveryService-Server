@@ -15,17 +15,6 @@ public class ApiError {
     private String message;
     private List<String> errors;
 
-    public ApiError() {
-        super();
-    }
-
-    public ApiError(final HttpStatus status, final String message, final List<String> errors) {
-        super();
-        this.status = status;
-        this.message = message;
-        this.errors = errors;
-    }
-
     public ApiError(final HttpStatus status, final String message, final String error) {
         super();
         this.status = status;
@@ -33,8 +22,4 @@ public class ApiError {
         errors = Arrays.asList(error);
     }
 
-
-    public void setError(final String error) {
-        errors = Arrays.asList(error);
-    }
 }

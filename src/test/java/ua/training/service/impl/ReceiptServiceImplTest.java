@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
@@ -77,6 +78,19 @@ class ReceiptServiceImplTest {
         assertEquals(result.getId(), ID);
         verify(receiptRepository).findById(anyLong());
         verify(receiptMapper).orderCheckToOrderCheckDto(any(Receipt.class));
+    }
+
+    @Test
+    void showCheckByIdException() throws OrderReceiptNotFoundException {
+
+        when(receiptRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(OrderReceiptNotFoundException.class,
+                () -> {
+                    service.showReceiptById(1L);
+                });
+
+        verify(receiptRepository).findById(anyLong());
     }
 
     @Test
