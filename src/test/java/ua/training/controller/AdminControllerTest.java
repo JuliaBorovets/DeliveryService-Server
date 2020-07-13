@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ua.training.api.dto.ReceiptDto;
 import ua.training.api.dto.StatisticsDto;
+import ua.training.exception.ControllerExceptionHandler;
 import ua.training.service.AdminService;
 import ua.training.service.ReceiptService;
 
@@ -49,6 +50,7 @@ class AdminControllerTest {
 
         mockMvc = MockMvcBuilders
                 .standaloneSetup(controller)
+                .setControllerAdvice(new ControllerExceptionHandler())
                 .build();
 
     }

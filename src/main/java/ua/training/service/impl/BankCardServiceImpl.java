@@ -16,7 +16,6 @@ import ua.training.domain.order.Status;
 import ua.training.domain.user.BankCard;
 import ua.training.domain.user.User;
 import ua.training.exception.BankCardException;
-import ua.training.exception.CanNotPayException;
 import ua.training.exception.OrderNotFoundException;
 import ua.training.repository.BankCardRepository;
 import ua.training.repository.ReceiptRepository;
@@ -63,12 +62,6 @@ public class BankCardServiceImpl implements BankCardService {
         this.bankCardMapper = bankCardMapper;
     }
 
-    private BankCard findById(Long id) throws BankCardException {
-        return bankCardRepository
-                .findById(id)
-                .orElseThrow(BankCardException::new);
-    }
-
     @Transactional
     public BankCardDto deleteBankCardConnectionWithUser(Long bankId, String login) throws BankCardException {
 
@@ -111,7 +104,7 @@ public class BankCardServiceImpl implements BankCardService {
             BankCard savedBankCard = bankCardRepository.save(bankCardToSave);
             return bankCardMapper.bankCardToDto(savedBankCard);
         } catch (DataIntegrityViolationException e) {
-            throw new BankCardException();
+            throw new BankCardException("can not save bank card with id=" + bankCardDTO.getId());
         }
 
     }
@@ -129,7 +122,7 @@ public class BankCardServiceImpl implements BankCardService {
         try {
             bankCardRepository.save(bankCard);
         } catch (DataIntegrityViolationException e) {
-            throw new BankCardException();
+            throw new BankCardException("can not create account to send money");
         }
     }
 
@@ -143,21 +136,20 @@ public class BankCardServiceImpl implements BankCardService {
 
 
     @Override
-    public void payForOrder(ReceiptDto receiptDto, String login) throws OrderNotFoundException, BankCardException, CanNotPayException {
+    public void payForOrder(ReceiptDto receiptDto, String login) throws OrderNotFoundException, BankCardException{
 
         User user = userService.findByLogin(login);
         receiptDto.setUserId(user.getId());
         Order order = orderService.findOrderById(receiptDto.getOrderId());
 
         if (order.getStatus().equals(Status.SHIPPED) || order.getStatus().equals(Status.PAID)){
-            throw new BankCardException();
+            throw new BankCardException("order is already paid");
         }
 
-        BankCard bankCard =  bankCardRepository.findById(receiptDto.getBankCard())
-                .orElseThrow(BankCardException::new);
+        BankCard bankCard =  findBankCardById(receiptDto.getBankCard());
 
         if (bankCard.getBalance().subtract(order.getShippingPriceInCents()).compareTo(BigDecimal.ZERO) < 0){
-            throw  new CanNotPayException();
+            throw  new BankCardException("no enough money");
         }
 
         Receipt receipt = Receipt.builder()
@@ -169,7 +161,7 @@ public class BankCardServiceImpl implements BankCardService {
         BankCard bankCardToSend = bankCardRepository
                 .findBankCardByIdAndExpMonthAndExpYearAndCcv(ACCOUNT_TO_SEND_MONEY_ID, ACCOUNT_TO_SEND_MONEY_EXP_MONTH,
                         ACCOUNT_TO_SEND_MONEY_EXP_YEAR, ACCOUNT_TO_SEND_MONEY_CCV)
-                .orElseThrow(BankCardException::new);
+                .orElseThrow(() -> new BankCardException("no bank card to send money"));
         processPaying(receipt, order, bankCardToSend);
 
     }
@@ -197,23 +189,20 @@ public class BankCardServiceImpl implements BankCardService {
     }
 
     public void replenishBankCard(Long bankId, BigDecimal moneyToAdd) throws BankCardException {
-        BankCard bankCard = findById(bankId);
+        BankCard bankCard = findBankCardById(bankId);
         bankCard.setBalance(bankCard.getBalance().add(moneyToAdd));
         bankCardRepository.save(bankCard);
     }
 
     @Override
     public BankCardDto findBankCardDtoById(Long id) throws BankCardException {
-        return bankCardRepository
-                .findById(id)
-                .map(bankCardMapper::bankCardToDto)
-                .orElseThrow(BankCardException::new);
+        return bankCardMapper.bankCardToDto(findBankCardById(id));
     }
 
     @Override
     public BankCard findBankCardById(Long id) throws BankCardException {
         return bankCardRepository
                 .findById(id)
-                .orElseThrow(BankCardException::new);
+                .orElseThrow(() -> new BankCardException("no bank card with id=" + id));
     }
 }

@@ -15,6 +15,7 @@ import ua.training.api.dto.OrderDto;
 import ua.training.api.dto.OrderTypeDto;
 import ua.training.domain.user.Role;
 import ua.training.domain.user.User;
+import ua.training.exception.ControllerExceptionHandler;
 import ua.training.service.DestinationService;
 import ua.training.service.OrderService;
 import ua.training.service.OrderTypeService;
@@ -61,6 +62,7 @@ class OrderControllerTest extends AbstractRestControllerTest{
 
         mockMvc = MockMvcBuilders
                 .standaloneSetup(controller)
+                .setControllerAdvice(new ControllerExceptionHandler())
                 .build();
 
         OrderDto orderDto1 = OrderDto.builder().id(1L).build();

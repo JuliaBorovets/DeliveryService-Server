@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ua.training.api.dto.BankCardDto;
 import ua.training.api.dto.ReceiptDto;
+import ua.training.exception.ControllerExceptionHandler;
 import ua.training.service.BankCardService;
 
 import java.util.Arrays;
@@ -45,6 +46,7 @@ class BankCardControllerTest extends AbstractRestControllerTest {
 
         mockMvc = MockMvcBuilders
                 .standaloneSetup(controller)
+                .setControllerAdvice(new ControllerExceptionHandler())
                 .build();
     }
 

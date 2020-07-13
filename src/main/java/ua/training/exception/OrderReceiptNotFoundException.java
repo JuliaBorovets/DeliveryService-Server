@@ -3,10 +3,10 @@ package ua.training.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(HttpStatus.BAD_REQUEST)
-public class OrderCreateException extends RuntimeException {
+@ResponseStatus(HttpStatus.NOT_FOUND)
+public class OrderReceiptNotFoundException extends RuntimeException {
 
-    public OrderCreateException(String message) {
+    public OrderReceiptNotFoundException(String message) {
         super(message);
     }
 }

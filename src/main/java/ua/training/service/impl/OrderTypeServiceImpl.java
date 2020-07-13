@@ -34,6 +34,6 @@ public class OrderTypeServiceImpl implements OrderTypeService {
     @Override
     public OrderType getOrderTypeById(Long id) throws OrderTypeNotFoundException {
         return orderTypeRepository.findById(id)
-                .orElseThrow(OrderTypeNotFoundException::new);
+                .orElseThrow(() -> new OrderTypeNotFoundException("no order type with id=" + id));
     }
 }

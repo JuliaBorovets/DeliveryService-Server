@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ua.training.api.dto.UserDto;
@@ -19,8 +20,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -30,6 +30,9 @@ class UserControllerTest extends AbstractRestControllerTest{
 
     @Mock
     UserService userService;
+
+    @Mock
+    Authentication mockPrincipal;
 
     @InjectMocks
     UserController controller;
@@ -88,11 +91,28 @@ class UserControllerTest extends AbstractRestControllerTest{
 
     @Test
     void login() throws Exception {
+        when(mockPrincipal.getName()).thenReturn("login");
 
         mockMvc.perform(get(UserController.BASE_URL + "/login")
                 .contentType(MediaType.APPLICATION_JSON)
+                .principal(mockPrincipal)
         )
                 .andExpect(status().isOk());
+
+        verify(userService).findByLogin(anyString());
+    }
+
+    @Test
+    void loginOther() throws Exception {
+        when(mockPrincipal.getName()).thenReturn(null);
+
+        mockMvc.perform(get(UserController.BASE_URL + "/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .principal(mockPrincipal)
+        )
+                .andExpect(status().isOk());
+
+        verifyNoInteractions(userService);
     }
 
     @Test
@@ -152,5 +172,28 @@ class UserControllerTest extends AbstractRestControllerTest{
                 .andExpect(status().isOk());
 
         verify(userService).updateUserInfo(any());
+    }
+
+    @Test
+    void notUniqueException() throws Exception {
+
+        UserDto userDto = UserDto.builder()
+                .firstName("FirstName")
+                .lastName("LastName")
+                .login("loginnnnn")
+                .password("3848password")
+                .email("email@g.dd").build();
+
+       User user = User.builder().login("login").build();
+
+        when(userService.findByLogin(anyString())).thenReturn(user);
+
+        mockMvc.perform(post(UserController.BASE_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(userDto))
+        )
+                .andExpect(status().isConflict());
+
+        verify(userService).findByLogin(anyString());
     }
 }

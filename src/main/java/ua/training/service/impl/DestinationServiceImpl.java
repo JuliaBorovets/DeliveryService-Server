@@ -38,6 +38,6 @@ public class DestinationServiceImpl implements DestinationService {
 
         return destinationRepository
                 .findByCityFromAndCityTo(cityFrom, cityTo)
-                .orElseThrow(DestinationNotFoundException::new);
+                .orElseThrow(() -> new DestinationNotFoundException("no destination : " + cityFrom + " - " + cityTo));
     }
 }

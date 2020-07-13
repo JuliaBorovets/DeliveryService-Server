@@ -55,12 +55,11 @@ public class UserServiceImpl implements UserService {
 
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
-
         try {
             userRepository.save(Objects.requireNonNull(user));
             return userMapper.userToUserDto(user);
         } catch (DataIntegrityViolationException e) {
-            throw new RegException("scan not save user");
+            throw new RegException("can not save user with login=" + userDto.getLogin());
         }
     }
 
@@ -73,8 +72,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> findAllByLoginLike(String login) {
         return userRepository.findAllByLoginLike("%" + login + "%").stream()
-                        .map(userMapper::userToUserDto)
-                        .collect(Collectors.toList());
+                .map(userMapper::userToUserDto)
+                .collect(Collectors.toList());
     }
 
     @Override

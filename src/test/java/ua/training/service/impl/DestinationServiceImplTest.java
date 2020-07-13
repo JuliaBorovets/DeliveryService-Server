@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -69,5 +70,15 @@ class DestinationServiceImplTest {
         assertEquals(result.getCityTo(), destination.get().getCityTo());
 
         verify(destinationRepository).findByCityFromAndCityTo(anyString(), anyString());
+    }
+
+    @Test
+    void getDestinationException() throws DestinationNotFoundException {
+        when(destinationRepository.findByCityFromAndCityTo(anyString(), anyString())).thenReturn(Optional.empty());
+
+        assertThrows(DestinationNotFoundException.class,
+                () -> {
+                    service.getDestination("from", "to");
+                });
     }
 }

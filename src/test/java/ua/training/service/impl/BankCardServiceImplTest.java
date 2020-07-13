@@ -14,7 +14,6 @@ import ua.training.domain.order.Status;
 import ua.training.domain.user.BankCard;
 import ua.training.domain.user.User;
 import ua.training.exception.BankCardException;
-import ua.training.exception.CanNotPayException;
 import ua.training.exception.OrderNotFoundException;
 import ua.training.repository.BankCardRepository;
 import ua.training.repository.ReceiptRepository;
@@ -223,7 +222,7 @@ class BankCardServiceImplTest {
         when(bankCardRepository.findById(anyLong()))
                 .thenReturn(Optional.of(bankCard));
 
-        assertThrows(CanNotPayException.class,
+        assertThrows(BankCardException.class,
                 () -> {
                     service.payForOrder(receiptDto, "login");
                 });
@@ -234,7 +233,7 @@ class BankCardServiceImplTest {
     }
 
     @Test
-    void payForOrder() throws OrderNotFoundException, CanNotPayException, BankCardException {
+    void payForOrder() throws OrderNotFoundException, BankCardException {
         final Long ID = 4L;
         User user = User.builder().id(5L).cards(cards).build();
 

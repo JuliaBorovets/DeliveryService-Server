@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import ua.training.api.dto.ReceiptDto;
-import ua.training.exception.OrderCheckNotFoundException;
+import ua.training.exception.OrderReceiptNotFoundException;
 import ua.training.service.ReceiptService;
 
 import java.util.Collections;
@@ -34,8 +34,8 @@ public class ReceiptController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public List<ReceiptDto> showCheck(@PathVariable Long id) throws OrderCheckNotFoundException {
+    public List<ReceiptDto> showCheck(@PathVariable Long id) throws OrderReceiptNotFoundException {
 
-        return Collections.singletonList(receiptService.showCheckById(id));
+        return Collections.singletonList(receiptService.showReceiptById(id));
     }
 }

@@ -4,7 +4,6 @@ import ua.training.api.dto.BankCardDto;
 import ua.training.api.dto.ReceiptDto;
 import ua.training.domain.user.BankCard;
 import ua.training.exception.BankCardException;
-import ua.training.exception.CanNotPayException;
 import ua.training.exception.OrderNotFoundException;
 
 import java.math.BigDecimal;
@@ -12,7 +11,7 @@ import java.util.List;
 
 public interface BankCardService {
 
-    void payForOrder(ReceiptDto receiptDto, String login) throws OrderNotFoundException, BankCardException, CanNotPayException;
+    void payForOrder(ReceiptDto receiptDto, String login) throws OrderNotFoundException, BankCardException;
 
     BankCardDto saveBankCardDTO(BankCardDto bankCardDTO, String login) throws BankCardException;
 

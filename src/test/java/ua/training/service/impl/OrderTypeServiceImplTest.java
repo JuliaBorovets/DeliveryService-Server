@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -63,5 +64,15 @@ class OrderTypeServiceImplTest {
 
         assertEquals(result.getId(), ID);
         verify(orderTypeRepository).findById(anyLong());
+    }
+
+    @Test
+    void getOrderTypeByIdException() {
+        when(orderTypeRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(OrderTypeNotFoundException.class,
+                () -> {
+                    service.getOrderTypeById(1L);
+                });
     }
 }

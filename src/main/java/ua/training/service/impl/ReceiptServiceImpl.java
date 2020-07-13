@@ -8,8 +8,8 @@ import ua.training.api.dto.ReceiptDto;
 import ua.training.api.dto.UserDto;
 import ua.training.api.mapper.ReceiptMapper;
 import ua.training.domain.order.Status;
-import ua.training.exception.OrderCheckNotFoundException;
 import ua.training.exception.OrderNotFoundException;
+import ua.training.exception.OrderReceiptNotFoundException;
 import ua.training.repository.ReceiptRepository;
 import ua.training.service.OrderService;
 import ua.training.service.ReceiptService;
@@ -44,10 +44,10 @@ public class ReceiptServiceImpl implements ReceiptService {
 
 
     @Override
-    public ReceiptDto showCheckById(Long checkId) throws OrderCheckNotFoundException {
+    public ReceiptDto showReceiptById(Long receiptId) throws OrderReceiptNotFoundException {
         return receiptMapper.orderCheckToOrderCheckDto(receiptRepository
-                .findById(checkId)
-                .orElseThrow(OrderCheckNotFoundException::new));
+                .findById(receiptId)
+                .orElseThrow(() -> new OrderReceiptNotFoundException("no receipt with id=" + receiptId)));
     }
 
     @Override

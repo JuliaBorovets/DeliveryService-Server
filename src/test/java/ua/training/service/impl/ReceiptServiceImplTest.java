@@ -13,8 +13,8 @@ import ua.training.api.mapper.ReceiptMapper;
 import ua.training.domain.order.Receipt;
 import ua.training.domain.order.Status;
 import ua.training.domain.user.User;
-import ua.training.exception.OrderCheckNotFoundException;
 import ua.training.exception.OrderNotFoundException;
+import ua.training.exception.OrderReceiptNotFoundException;
 import ua.training.repository.ReceiptRepository;
 import ua.training.service.OrderService;
 import ua.training.service.UserService;
@@ -64,7 +64,7 @@ class ReceiptServiceImplTest {
     }
 
     @Test
-    void showCheckById() throws OrderCheckNotFoundException {
+    void showCheckById() throws OrderReceiptNotFoundException {
 
         final Long ID = 1L;
         Optional<Receipt> optionalOrderCheck = Optional.of(Receipt.builder().id(ID).build());
@@ -72,7 +72,7 @@ class ReceiptServiceImplTest {
         when(receiptRepository.findById(anyLong())).thenReturn(optionalOrderCheck);
         when(receiptMapper.orderCheckToOrderCheckDto(any(Receipt.class))).thenReturn(ReceiptDto.builder().id(ID).build());
 
-        ReceiptDto result = service.showCheckById(ID);
+        ReceiptDto result = service.showReceiptById(ID);
 
         assertEquals(result.getId(), ID);
         verify(receiptRepository).findById(anyLong());

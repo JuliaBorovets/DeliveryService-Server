@@ -30,7 +30,8 @@ public class OrderController {
     private final OrderTypeService orderTypeService;
     private final DestinationService destinationService;
 
-    public OrderController(OrderService orderService, OrderTypeService orderTypeService, DestinationService destinationService) {
+    public OrderController(OrderService orderService, OrderTypeService orderTypeService,
+                           DestinationService destinationService) {
         this.orderService = orderService;
         this.orderTypeService = orderTypeService;
         this.destinationService = destinationService;
@@ -61,6 +62,7 @@ public class OrderController {
     @GetMapping("/all_orders")
     @ResponseStatus(HttpStatus.OK)
     public List<OrderDto> getAllUserOrders(Authentication user){
+
         return orderService.findAllUserOrders(user.getName());
     }
 

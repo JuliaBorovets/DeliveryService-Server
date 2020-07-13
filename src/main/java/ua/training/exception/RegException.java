@@ -1,17 +1,10 @@
 package ua.training.exception;
 
-import lombok.Getter;
-import lombok.Setter;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-@Getter
-@Setter
+@ResponseStatus(HttpStatus.CONFLICT)
 public class RegException extends Exception {
-
-    private boolean duplicate = false;
-
-    public RegException() {
-        super();
-    }
 
     public RegException(String message) {
         super(message);

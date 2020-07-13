@@ -35,7 +35,7 @@ public class UserController {
 
         if (userService.findByLogin(user.getLogin()) != null) {
             //Username should be unique.
-            throw new UserAlreadyExistsException();
+            throw new UserAlreadyExistsException("user with already exists with login=" + user.getLogin());
         }
 
         return userService.saveNewUserDto(user);
@@ -64,9 +64,6 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public List<UserDto> findUserByLogin(@PathVariable String login){
 
-        if (login == null){
-            return userService.findAllUsers();
-        }
         return userService.findAllByLoginLike(login);
     }
 

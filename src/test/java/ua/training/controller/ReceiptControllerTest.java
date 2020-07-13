@@ -86,7 +86,7 @@ class ReceiptControllerTest extends AbstractRestControllerTest{
     @Test
     void showCheck() throws Exception {
 
-        when(receiptService.showCheckById(anyLong())).thenReturn(ReceiptDto.builder().id(1L).build());
+        when(receiptService.showReceiptById(anyLong())).thenReturn(ReceiptDto.builder().id(1L).build());
 
         mockMvc.perform(get(ReceiptController.BASE_URL + "/1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -94,6 +94,6 @@ class ReceiptControllerTest extends AbstractRestControllerTest{
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)));
 
-        verify(receiptService).showCheckById(anyLong());
+        verify(receiptService).showReceiptById(anyLong());
     }
 }

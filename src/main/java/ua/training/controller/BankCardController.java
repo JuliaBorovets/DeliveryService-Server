@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import ua.training.api.dto.BankCardDto;
 import ua.training.api.dto.ReceiptDto;
 import ua.training.exception.BankCardException;
-import ua.training.exception.CanNotPayException;
 import ua.training.exception.OrderNotFoundException;
 import ua.training.service.BankCardService;
 
@@ -38,7 +37,6 @@ public class BankCardController {
     public BankCardDto addNewBankCard(@RequestBody BankCardDto bankCardDto, Authentication user)
             throws BankCardException {
 
-        log.error("controller");
         return bankCardService.saveBankCardDTO(bankCardDto, user.getName());
     }
 
@@ -69,7 +67,7 @@ public class BankCardController {
     @PostMapping(value = "/pay")
     @ResponseStatus(HttpStatus.OK)
     public void payShipment(@RequestBody ReceiptDto receiptDto, Authentication user)
-            throws OrderNotFoundException, BankCardException, CanNotPayException {
+            throws OrderNotFoundException, BankCardException {
 
         bankCardService.payForOrder(receiptDto, user.getName());
     }

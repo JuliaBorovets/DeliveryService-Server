@@ -57,14 +57,12 @@ public class OrderServiceImpl implements OrderService {
                         .collect(Collectors.toList());
     }
 
-
     @Override
     public List<OrderDto> findAllNotPaidUserOrders(String login) {
         return orderRepository.findByStatusAndOwner_Login(Status.NOT_PAID, login).stream()
                         .map(orderMapper::orderToOrderDto)
                         .collect(Collectors.toList());
     }
-
 
     @Override
     public List<OrderDto> findAllArchivedUserOrders(String login) {
@@ -114,8 +112,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDto getOrderDtoById(Long id) throws OrderNotFoundException {
-        Order order = orderRepository.findById(id)
-                .orElseThrow(OrderNotFoundException::new);
+        Order order = findOrderById(id);
 
         return orderMapper.orderToOrderDto(order);
     }
@@ -124,7 +121,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderDto getOrderDtoByIdAndUserId(Long id, String login) throws OrderNotFoundException {
 
         Order order = orderRepository.findByIdAndOwner_Login(id, login)
-                .orElseThrow(OrderNotFoundException::new);
+                .orElseThrow(() -> new OrderNotFoundException("no order with id=" + id));
 
         return orderMapper.orderToOrderDto(order);
     }
@@ -132,7 +129,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order findOrderById(Long orderId) throws OrderNotFoundException {
         return orderRepository.findById(orderId)
-                .orElseThrow(OrderNotFoundException::new);
+                .orElseThrow(() -> new OrderNotFoundException("no order with id=" + orderId));
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW,
@@ -142,7 +139,7 @@ public class OrderServiceImpl implements OrderService {
         Order orderToSave = orderMapper.orderDtoToOrder(orderDTO);
 
         User userToSave = userRepository.findByLogin(login)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() -> new UserNotFoundException("no user with login=" + login));
 
         try {
 

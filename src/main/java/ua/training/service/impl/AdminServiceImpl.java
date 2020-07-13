@@ -30,8 +30,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void shipOrder(Long orderId) throws OrderNotFoundException {
 
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(OrderNotFoundException::new);
+        Order order = findOrderById(orderId);
 
         if (!order.getStatus().equals(Status.PAID)){
             throw new OrderNotFoundException();
@@ -49,8 +48,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void deliverOrder(Long orderId) throws OrderNotFoundException {
 
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(OrderNotFoundException::new);
+        Order order = findOrderById(orderId);
 
         if (!order.getStatus().equals(Status.SHIPPED)){
             throw new OrderNotFoundException();
@@ -65,8 +63,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void receiveOrder(Long orderId) throws OrderNotFoundException {
 
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(OrderNotFoundException::new);
+        Order order = findOrderById(orderId);
 
         if (!order.getStatus().equals(Status.DELIVERED)){
             throw new OrderNotFoundException();
@@ -120,6 +117,9 @@ public class AdminServiceImpl implements AdminService {
         return statistic;
     }
 
-
+    private Order findOrderById(Long orderId){
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException("no order with id=" + orderId));
+    }
 
 }
