@@ -98,7 +98,7 @@ public class OrderServiceImpl implements OrderService {
                         .collect(Collectors.toList());
     }
 
-    private BigDecimal calculatePrice(Order order) {
+    public BigDecimal calculatePrice(Order order) {
 
         BigDecimal priceForDestination = order.getDestination().getPriceInCents();
 
@@ -143,7 +143,6 @@ public class OrderServiceImpl implements OrderService {
 
         try {
 
-            log.error(orderDTO.toString());
             orderToSave.setOrderType(orderTypeService.getOrderTypeById(Long.valueOf(orderDTO.getType())));
             orderToSave.setDestination(destinationService.getDestination(orderDTO.getDestinationCityFrom(),
                     orderDTO.getDestinationCityTo()));

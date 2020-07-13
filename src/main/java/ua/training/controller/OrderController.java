@@ -14,6 +14,7 @@ import ua.training.service.DestinationService;
 import ua.training.service.OrderService;
 import ua.training.service.OrderTypeService;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -76,7 +77,7 @@ public class OrderController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public OrderDto createNewOrder(@RequestBody OrderDto orderDto, Authentication user)
+    public OrderDto createNewOrder(@Valid @RequestBody OrderDto orderDto, Authentication user)
             throws OrderCreateException, UserNotFoundException {
 
         return orderService.createOrder(orderDto, user.getName());

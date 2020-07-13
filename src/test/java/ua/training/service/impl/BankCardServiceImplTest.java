@@ -144,11 +144,6 @@ class BankCardServiceImplTest {
         verify(bankCardRepository).save(any());
     }
 
-    @Test
-    void createAccountToSendMoney() throws BankCardException {
-        service.createAccountToSendMoney();
-        verify(bankCardRepository).save(any(BankCard.class));
-    }
 
     @Test
     void updateBankCardDTO() throws BankCardException {

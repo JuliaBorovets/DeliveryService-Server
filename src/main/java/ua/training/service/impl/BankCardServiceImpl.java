@@ -23,7 +23,6 @@ import ua.training.service.BankCardService;
 import ua.training.service.OrderService;
 import ua.training.service.UserService;
 
-import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -108,24 +107,6 @@ public class BankCardServiceImpl implements BankCardService {
         }
 
     }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW,
-            rollbackFor = BankCardException.class)
-    @PostConstruct
-    public void createAccountToSendMoney() throws BankCardException {
-        BankCard bankCard = BankCard.builder()
-                .id(ACCOUNT_TO_SEND_MONEY_ID)
-                .expMonth(ACCOUNT_TO_SEND_MONEY_EXP_MONTH)
-                .expYear(ACCOUNT_TO_SEND_MONEY_EXP_YEAR)
-                .balance(BigDecimal.ZERO)
-                .ccv(ACCOUNT_TO_SEND_MONEY_CCV).build();
-        try {
-            bankCardRepository.save(bankCard);
-        } catch (DataIntegrityViolationException e) {
-            throw new BankCardException("can not create account to send money");
-        }
-    }
-
 
     @Override
     public BankCardDto updateBankCardDTO(BankCardDto bankCardDTO) throws BankCardException {

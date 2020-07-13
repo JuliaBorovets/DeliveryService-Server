@@ -31,7 +31,7 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDto register(@RequestBody @Valid UserDto user) throws RegException {
+    public UserDto register(@Valid @RequestBody UserDto user) throws RegException {
 
         if (userService.findByLogin(user.getLogin()) != null) {
             //Username should be unique.

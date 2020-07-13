@@ -85,7 +85,6 @@ class UserControllerTest extends AbstractRestControllerTest{
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(userDto))
         )
-                //todo exception
                 .andExpect(status().is4xxClientError());
     }
 

@@ -10,6 +10,7 @@ import ua.training.exception.BankCardException;
 import ua.training.exception.OrderNotFoundException;
 import ua.training.service.BankCardService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
@@ -34,7 +35,7 @@ public class BankCardController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public BankCardDto addNewBankCard(@RequestBody BankCardDto bankCardDto, Authentication user)
+    public BankCardDto addNewBankCard(@Valid @RequestBody BankCardDto bankCardDto, Authentication user)
             throws BankCardException {
 
         return bankCardService.saveBankCardDTO(bankCardDto, user.getName());

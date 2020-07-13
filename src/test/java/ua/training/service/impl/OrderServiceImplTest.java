@@ -1,32 +1,44 @@
 package ua.training.service.impl;
 
-import jdk.nashorn.internal.ir.annotations.Ignore;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.util.ReflectionTestUtils;
 import ua.training.api.dto.OrderDto;
+import ua.training.api.dto.OrderTypeDto;
 import ua.training.api.mapper.OrderMapper;
+import ua.training.domain.order.Destination;
 import ua.training.domain.order.Order;
+import ua.training.domain.order.OrderType;
 import ua.training.domain.order.Status;
 import ua.training.domain.user.User;
+import ua.training.exception.DestinationNotFoundException;
 import ua.training.exception.OrderNotFoundException;
+import ua.training.exception.OrderTypeNotFoundException;
+import ua.training.exception.UserNotFoundException;
 import ua.training.repository.OrderRepository;
 import ua.training.repository.UserRepository;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@TestPropertySource
+@ContextConfiguration(classes = OrderServiceImpl.class)
 class OrderServiceImplTest {
 
     @Mock
@@ -44,14 +56,21 @@ class OrderServiceImplTest {
     @Mock
     DestinationServiceImpl destinationService;
 
-    BigDecimal BASE_PRICE = BigDecimal.valueOf(6);
-
-    BigDecimal WEIGHT_COEFFICIENT = BigDecimal.valueOf(7);
+    @Spy
+    private List<Order> orderList = new ArrayList<>();
 
     @InjectMocks
     OrderServiceImpl service;
 
-    @Ignore
+    final BigDecimal BASE_PRICE = BigDecimal.valueOf(5);
+    final BigDecimal WEIGHT_COEFFICIENT = BigDecimal.valueOf(0.25);
+
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(service, "BASE_PRICE", BASE_PRICE);
+        ReflectionTestUtils.setField(service, "WEIGHT_COEFFICIENT", WEIGHT_COEFFICIENT);
+    }
+
     @Test
     void findAllUserOrders() {
 
@@ -321,5 +340,63 @@ class OrderServiceImplTest {
                 });
 
         verify(orderRepository).findById(anyLong());
+    }
+
+    @Test
+    void calculatePrice() {
+
+        BigDecimal result = service.calculatePrice(Order.builder()
+                .destination(Destination.builder().priceInCents(BigDecimal.ONE).build())
+                .weight(BigDecimal.ONE)
+                .orderType(OrderType.builder().priceInCents(BigDecimal.ONE).build())
+                .build());
+
+        assertNotNull(result);
+    }
+
+    @Test
+    void createOrderException() {
+        Order order = Order.builder().build();
+        when(orderMapper.orderDtoToOrder(any(OrderDto.class))).thenReturn(order);
+
+        when(userRepository.findByLogin(anyString())).thenThrow(new UserNotFoundException("no user"));
+
+        assertThrows(UserNotFoundException.class,
+                () -> {
+                    service.createOrder(OrderDto.builder().build(), "login");
+                });
+    }
+
+    @Test
+    void createOrder() throws OrderTypeNotFoundException, DestinationNotFoundException {
+        Order order = Order.builder()
+                .weight(BigDecimal.ONE)
+                .destination(Destination.builder().priceInCents(BigDecimal.ONE).build())
+                .orderType(OrderType.builder().priceInCents(BigDecimal.ONE).build()).build();
+        OrderDto orderDto = OrderDto.builder()
+                .orderType(OrderTypeDto.builder().id(1L).build())
+                .type("1")
+                .destinationCityFrom("from")
+                .destinationCityTo("to").build();
+
+        when(orderMapper.orderDtoToOrder(any(OrderDto.class))).thenReturn(order);
+
+        when(userRepository.findByLogin(anyString())).thenReturn(Optional.of(User.builder().orders(orderList).build()));
+
+        when(orderTypeService.getOrderTypeById(anyLong())).thenReturn(
+                OrderType.builder().priceInCents(BigDecimal.ONE).build());
+        when(destinationService.getDestination(anyString(), anyString())).thenReturn(
+                Destination.builder().priceInCents(BigDecimal.ONE).build());
+        when(orderRepository.save(any())).thenReturn(order);
+        when(orderMapper.orderToOrderDto(any(Order.class))).thenReturn(orderDto);
+
+        service.createOrder(orderDto, "login");
+
+        verify(orderMapper).orderDtoToOrder(any(OrderDto.class));
+        verify(userRepository).findByLogin(anyString());
+        verify(orderTypeService).getOrderTypeById(anyLong());
+        verify(destinationService).getDestination(anyString(), anyString());
+        verify(orderRepository).save(any());
+        verify(orderMapper).orderToOrderDto(any(Order.class));
     }
 }
