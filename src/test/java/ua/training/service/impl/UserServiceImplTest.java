@@ -211,7 +211,6 @@ class UserServiceImplTest {
         assertEquals(result.getRole(), Role.ROLE_ADMIN);
     }
 
-
     @Test
     void updateUserInfo() {
         final Long ID = 1L;
@@ -231,7 +230,7 @@ class UserServiceImplTest {
 
         when(userMapper.userDtoToUser(any(UserDto.class))).thenReturn(user);
         when(userMapper.userToUserDto(user)).thenReturn(userDto);
-        when(passwordEncoder.encode(anyString())).thenReturn(PASSWORD);
+        when(passwordEncoder.encode(any())).thenReturn(PASSWORD);
         when(userRepository.save(any())).thenReturn(user);
 
         UserDto result = service.updateUserInfo(userDto);

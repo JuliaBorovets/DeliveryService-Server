@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ua.training.api.dto.UserDto;
 import ua.training.api.mapper.UserMapper;
+import ua.training.configuration.ProjectPasswordEncoder;
 import ua.training.domain.user.Role;
 import ua.training.domain.user.User;
 import ua.training.exception.RegException;
@@ -25,7 +26,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final PasswordEncoder passwordEncoder;
+    private  final PasswordEncoder passwordEncoder;
 
     public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
